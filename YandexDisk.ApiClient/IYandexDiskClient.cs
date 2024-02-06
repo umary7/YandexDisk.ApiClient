@@ -113,6 +113,4 @@ public interface IYandexDiskClient : IDisposable
     /// <returns><see cref="AsyncOperationResponse"/> with operation status</returns>
     Task<Result<AsyncOperationResponse, YndxDiskError>> GetAsyncOperationStatus(string operationId,
         CancellationToken ct = default);
-
-    void Dispose();
 }
