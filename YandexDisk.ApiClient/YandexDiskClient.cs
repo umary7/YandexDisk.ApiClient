@@ -58,8 +58,7 @@ public sealed class YandexDiskClient : IDisposable
     }
 
     public async Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, int limit = 50,
-        int offset = 0,
-        CancellationToken ct = default)
+        int offset = 0, CancellationToken ct = default)
     {
         try
         {
@@ -106,9 +105,40 @@ public sealed class YandexDiskClient : IDisposable
         }
     }
 
+    public async Task<Result<YndxResponse, YndxDiskError>> DeleteResource(string path, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Delete,
+                new Uri("resources", UriKind.Relative)
+                    .AddParameters(
+                        ("path", path))), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Result.Success<YndxResponse, YndxDiskError>(new YndxResponse());
+            }
+
+            _logger.LogError("Error while deleting resource: {Error}", response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while deleting resource: {Error}", ex.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
     public async Task<Result<YndxResponse, YndxDiskError>> UploadFile(string destinationPath, string sourcePath,
-        bool overwrite = true,
-        CancellationToken cancellationToken = default)
+        bool overwrite = true, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -142,7 +172,51 @@ public sealed class YandexDiskClient : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{FileName} was not uploaded. Exception: {Message}", sourcePath, ex.Message);
+            _logger.LogError(ex, "{FileName} was not uploaded. Error: {Message}", sourcePath, ex.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
+    public async Task<Result<YndxResponse, YndxDiskError>> UploadFile(string destinationPath,
+        StreamContent streamContent, bool overwrite = true, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var yDiskResponse =
+                await UploadResource(destinationPath, overwrite, cancellationToken).ConfigureAwait(false);
+
+            if (yDiskResponse.IsFailure) return Result.Failure<YndxResponse, YndxDiskError>(yDiskResponse.Error);
+
+            _logger.LogInformation("Uploading {FileName}", destinationPath);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, yDiskResponse.Value.Href)
+            {
+                Content = streamContent
+            };
+
+            var response = await SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                return await response.JsonParseResponseAsync<YndxResponse>(ct: cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            _logger.LogError("{FileName} was not uploaded. Response code: {ResponseCode}", destinationPath,
+                response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "{FileName} was not uploaded. Error: {Message}", destinationPath, ex.Message);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = ex.Message,
@@ -152,8 +226,7 @@ public sealed class YandexDiskClient : IDisposable
     }
 
     private async Task<Result<UploadResourceResponse, YndxDiskError>> UploadResource(string destinationPath,
-        bool overwrite = true,
-        CancellationToken ct = default)
+        bool overwrite = true, CancellationToken ct = default)
     {
         try
         {
@@ -176,8 +249,7 @@ public sealed class YandexDiskClient : IDisposable
         }
     }
 
-    private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage,
-        CancellationToken ct = default)
+    private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken ct = default)
     {
         try
         {
