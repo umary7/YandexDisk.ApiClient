@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace YandexDisk.ApiClient.Models;
+namespace YandexDisk.ApiClient.Responses;
 
 public class GetResourcesResponse
 {

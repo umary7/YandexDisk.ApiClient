@@ -1,4 +1,4 @@
-﻿namespace YandexDisk.ApiClient.Models;
+﻿namespace YandexDisk.ApiClient.Responses;
 
 public class CreateFolderResponse
 {
