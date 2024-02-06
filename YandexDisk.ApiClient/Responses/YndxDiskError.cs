@@ -1,10 +1,10 @@
 ﻿namespace YandexDisk.ApiClient.Responses;
 
-public class YndxDiskError
+public record YndxDiskError
 {
-    public string Message { get; set; }
+    public string Message { get; init; }
     
-    public string Description { get; set; }
+    public string Description { get; init; }
     
-    public string Error { get; set; }
+    public string Error { get; init; }
 }

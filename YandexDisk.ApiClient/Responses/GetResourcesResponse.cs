@@ -2,32 +2,41 @@
 
 namespace YandexDisk.ApiClient.Responses;
 
-public class GetResourcesResponse
+/// <summary>
+///     Get resources response
+/// </summary>
+public record GetResourcesResponse
 {
-    public string Name { get; set; }
-    
+    public string Name { get; init; }
+
     [JsonPropertyName("_embedded")]
-    public ResourceEmbedded Embedded { get; set; }
-    
-    public string Type { get; set; }
+    public ResourceEmbedded Embedded { get; init; }
+
+    public string Type { get; init; }
 }
 
-public class ResourceEmbedded
+/// <summary>
+///  Resource embedded info
+/// </summary>
+public record ResourceEmbedded
 {
-    public IReadOnlyCollection<ResourceItemMetaInfo> Items { get; set; }
-    public string Path { get; set; }
-    public long Total { get; set; }
-    public int Limit { get; set; }
-    public int Offset { get; set; }
+    public IReadOnlyCollection<ResourceItemMetaInfo> Items { get; init; }
+    public string Path { get; init; }
+    public long Total { get; init; }
+    public int Limit { get; init; }
+    public int Offset { get; init; }
 }
 
-public class ResourceItemMetaInfo
+/// <summary>
+///     Resource item meta info
+/// </summary>
+public record ResourceItemMetaInfo
 {
-    public string Name { get; set; }
-    public string File { get; set; }
-    public string Type { get; set; }
-    public long Size { get; set; }
-    public string MimeType { get; set; }
-    public string MediaType { get; set; }
-    public string Path { get; set; }
+    public string Name { get; init; }
+    public string File { get; init; }
+    public string Type { get; init; }
+    public long Size { get; init; }
+    public string MimeType { get; init; }
+    public string MediaType { get; init; }
+    public string Path { get; init; }
 }

@@ -1,14 +1,14 @@
 ﻿namespace YandexDisk.ApiClient.Responses;
 
-public class YndxDiskResponse<T>
+public record YndxDiskResponse<T>
 {
-    public bool Success { get; set; }
-    public YndxDiskError? Error { get; set; }
-    public T? Result { get; set; }
+    public bool Success { get; init; }
+    public YndxDiskError? Error { get; init; }
+    public T? Result { get; init; }
 }
  
-public class YndxDiskResponse
+public record YndxDiskResponse
 {
-    public bool Success { get; set; }
-    public YndxDiskError? Error { get; set; }
+    public bool Success { get; init; }
+    public YndxDiskError? Error { get; init; }
 }

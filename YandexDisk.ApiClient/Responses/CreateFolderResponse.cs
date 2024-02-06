@@ -1,10 +1,10 @@
 ﻿namespace YandexDisk.ApiClient.Responses;
 
-public class CreateFolderResponse
+public record CreateFolderResponse
 {
-    public string Href { get; set; }
+    public string Href { get; init; }
     
-    public string Method { get; set; }
+    public string Method { get; init; }
     
-    public bool Templated { get; set; }
+    public bool Templated { get; init; }
 }

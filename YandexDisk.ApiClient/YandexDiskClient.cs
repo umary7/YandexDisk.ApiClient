@@ -8,7 +8,7 @@ using YandexDisk.ApiClient.Responses;
 
 namespace YandexDisk.ApiClient;
 
-public sealed class YandexDiskClient : IDisposable
+public sealed class YandexDiskClient : IYandexDiskClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<YandexDiskClient> _logger;
@@ -94,7 +94,7 @@ public sealed class YandexDiskClient : IDisposable
             if (sort != null) uri = uri.AddParameters(("sort", sort));
             if (mediaType != null) uri = uri.AddParameters(("media_type", mediaType));
             if (fields != null) uri = uri.AddParameters(("fields", fields));
-            
+
             var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), ct).ConfigureAwait(false);
 
             return await response.JsonParseResponseAsync<GetFilesResponse>(ct).ConfigureAwait(false);
@@ -109,7 +109,6 @@ public sealed class YandexDiskClient : IDisposable
             });
         }
     }
-
 
     public async Task<Result<CreateFolderResponse, YndxDiskError>> CreateFolder(string path)
     {
@@ -164,7 +163,6 @@ public sealed class YandexDiskClient : IDisposable
             });
         }
     }
-
 
     public async Task<Result<YndxResponse, YndxDiskError>> CopyResource(string from, string to, bool overwrite = true,
         bool forceAsync = false, CancellationToken ct = default)
@@ -360,6 +358,13 @@ public sealed class YandexDiskClient : IDisposable
         }
     }
 
+    /// <summary>
+    ///    Create link for uploading file to the specified path
+    /// </summary>
+    /// <param name="destinationPath">Destination path</param>
+    /// <param name="overwrite">Overwrite existing resource</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns><see cref="UploadResourceResponse"/> with upload link</returns>
     private async Task<Result<UploadResourceResponse, YndxDiskError>> UploadResource(string destinationPath,
         bool overwrite = true, CancellationToken ct = default)
     {
