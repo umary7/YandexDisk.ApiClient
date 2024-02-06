@@ -420,14 +420,16 @@ public sealed class YandexDiskClient : IYandexDiskClient
             _logger.LogDebug("{Method} {Uri} : {StatusCode}", response.RequestMessage?.Method,
                 response.RequestMessage?.RequestUri, response.StatusCode);
 
-            if (_logger.IsEnabled(LogLevel.Trace))
+            if (!_logger.IsEnabled(LogLevel.Trace)) return response;
+            
+            if (requestMessage.Content != null)
             {
-                var requestContent = await response.RequestMessage?.Content?.ReadAsStringAsync(ct);
+                var requestContent = await requestMessage.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogTrace("Request: {Request}", requestContent);
-
-                var responseContent = await response.Content.ReadAsStringAsync(ct);
-                _logger.LogTrace("{Response}", responseContent);
             }
+                
+            var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogTrace("{Response}", responseContent);
 
             return response;
         }
