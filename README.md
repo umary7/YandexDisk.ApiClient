@@ -3,7 +3,7 @@
 
 C# client for Yandex.Disk REST API
 
-Yandex.Disk REST API documentation: https://yandex.ru/dev/disk/rest/
+Yandex.Disk REST API documentation: https://yandex.com/dev/disk/rest/
 
 ## Installation
 

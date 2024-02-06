@@ -82,6 +82,34 @@ public sealed class YandexDiskClient : IDisposable
         }
     }
 
+    public async Task<Result<GetFilesResponse, YndxDiskError>> GetFiles(int limit, int offset, string? sort = null,
+        string? mediaType = null, string? fields = null, CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = new Uri("resources/files", UriKind.Relative)
+                .AddParameters(
+                    ("limit", limit.ToString()),
+                    ("offset", offset.ToString()));
+            if (sort != null) uri = uri.AddParameters(("sort", sort));
+            if (mediaType != null) uri = uri.AddParameters(("media_type", mediaType));
+            if (fields != null) uri = uri.AddParameters(("fields", fields));
+            
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), ct).ConfigureAwait(false);
+
+            return await response.JsonParseResponseAsync<GetFilesResponse>(ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while getting files");
+            return Result.Failure<GetFilesResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
 
     public async Task<Result<CreateFolderResponse, YndxDiskError>> CreateFolder(string path)
     {
@@ -98,6 +126,113 @@ public sealed class YandexDiskClient : IDisposable
         {
             _logger.LogError(ex, "Error while creating folder: {Error}", ex.Message);
             return Result.Failure<CreateFolderResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
+    public async Task<Result<YndxResponse, YndxDiskError>> GetDownloadLink(string path, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                new Uri("resources/download", UriKind.Relative)
+                    .AddParameters(
+                        ("path", path))), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
+            }
+
+            _logger.LogError("Error while getting download link: {Error}", response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while getting download link: {Error}", ex.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
+
+    public async Task<Result<YndxResponse, YndxDiskError>> CopyResource(string from, string to, bool overwrite = true,
+        bool forceAsync = false, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Post,
+                new Uri("resources/copy", UriKind.Relative)
+                    .AddParameters(
+                        ("from", from),
+                        ("path", to),
+                        ("overwrite", overwrite.ToString()),
+                        ("force_async", forceAsync.ToString())
+                    )), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
+            }
+
+            _logger.LogError("Error while copying resource: {Error}", response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while copying resource: {Error}", ex.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
+    public async Task<Result<YndxResponse, YndxDiskError>> MoveResource(string from, string to, bool overwrite = true,
+        bool forceAsync = false, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Post,
+                new Uri("resources/move", UriKind.Relative)
+                    .AddParameters(
+                        ("from", from),
+                        ("path", to),
+                        ("overwrite", overwrite.ToString()),
+                        ("force_async", forceAsync.ToString())
+                    )), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
+            }
+
+            _logger.LogError("Error while moving resource: {Error}", response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while moving resource: {Error}", ex.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = ex.Message,
                 Message = ex.Message
@@ -242,6 +377,27 @@ public sealed class YandexDiskClient : IDisposable
         {
             _logger.LogError(ex, "Error while uploading resource: {Error}", ex.Message);
             return Result.Failure<UploadResourceResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = ex.Message,
+                Message = ex.Message
+            });
+        }
+    }
+
+    public async Task<Result<AsyncOperationResponse, YndxDiskError>> GetAsyncOperationStatus(string operationId,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                new Uri($"operations/{operationId}", UriKind.Relative)), ct).ConfigureAwait(false);
+
+            return await response.JsonParseResponseAsync<AsyncOperationResponse>(ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while getting async operation status: {Error}", ex.Message);
+            return Result.Failure<AsyncOperationResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = ex.Message,
                 Message = ex.Message

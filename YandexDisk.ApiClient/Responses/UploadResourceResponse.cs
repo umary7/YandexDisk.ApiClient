@@ -1,9 +1,12 @@
 ﻿namespace YandexDisk.ApiClient.Responses;
 
-public class UploadResourceResponse
+/// <summary>
+///     Upload resource response. Returns href for uploading file.
+/// </summary>
+public record UploadResourceResponse
 {
-    public string OperationId { get; set; }
-    public string Href { get; set; }
-    public string Method { get; set; }
-    public bool Templated { get; set; }
+    public string OperationId { get; init; }
+    public string Href { get; init; }
+    public string Method { get; init; }
+    public bool Templated { get; init; }
 }
