@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Humanizer;
 
-namespace YandexDisk.ApiClient.Extensions;
+namespace YandexDisk.ApiClient.Formatting;
 
 public class SnakeCaseNamingPolicy : JsonNamingPolicy
 {
