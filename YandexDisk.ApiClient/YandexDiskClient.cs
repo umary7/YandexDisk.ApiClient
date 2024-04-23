@@ -108,7 +108,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 Message = ex.Message
             });
         }
-    }
+    } 
 
     public async Task<Result<CreateFolderResponse, YndxDiskError>> CreateFolder(string path)
     {
@@ -417,8 +417,8 @@ public sealed class YandexDiskClient : IYandexDiskClient
             ct.ThrowIfCancellationRequested();
 
             var response = await _httpClient.SendAsync(requestMessage, ct).ConfigureAwait(false);
-            _logger.LogDebug("{Method} {Uri} : {StatusCode}", response.RequestMessage?.Method,
-                response.RequestMessage?.RequestUri, response.StatusCode);
+            _logger.LogDebug("{Method} {Uri}: {StatusCode} {StatusCodeReason}", response.RequestMessage?.Method,
+                response.RequestMessage?.RequestUri, (int)response.StatusCode, response.ReasonPhrase);
 
             if (!_logger.IsEnabled(LogLevel.Trace)) return response;
             
