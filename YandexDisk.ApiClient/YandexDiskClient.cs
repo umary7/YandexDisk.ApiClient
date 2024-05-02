@@ -146,7 +146,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while getting download link: {Error}", response.StatusCode);
+            _logger.LogError("Error while getting download link: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -183,7 +183,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while copying resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while copying resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -220,7 +220,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while moving resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while moving resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -252,7 +252,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return Result.Success<YndxResponse, YndxDiskError>(new YndxResponse());
             }
 
-            _logger.LogError("Error while deleting resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while deleting resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
