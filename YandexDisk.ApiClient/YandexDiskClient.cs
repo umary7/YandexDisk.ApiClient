@@ -13,9 +13,9 @@ public sealed class YandexDiskClient : IYandexDiskClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<YandexDiskClient> _logger;
 
-    public YandexDiskClient(HttpClient httpClient, ILogger<YandexDiskClient> logger)
+    public YandexDiskClient(HttpClient httpClient, ILogger<YandexDiskClient>? logger = null)
     {
-        _logger = logger;
+        _logger = logger ?? NullLogger<YandexDiskClient>.Instance;
         _httpClient = httpClient;
     }
 
@@ -108,7 +108,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 Message = ex.Message
             });
         }
-    } 
+    }
 
     public async Task<Result<CreateFolderResponse, YndxDiskError>> CreateFolder(string path)
     {
@@ -421,13 +421,13 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 response.RequestMessage?.RequestUri, (int)response.StatusCode, response.ReasonPhrase);
 
             if (!_logger.IsEnabled(LogLevel.Trace)) return response;
-            
+
             if (requestMessage.Content != null)
             {
                 var requestContent = await requestMessage.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogTrace("Request: {Request}", requestContent);
             }
-                
+
             var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogTrace("{Response}", responseContent);
 
