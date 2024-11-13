@@ -4,12 +4,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Authors>umary</Authors>
     <PackageId>YandexDisk.ApiClient</PackageId>
     <Version>1.0.3-alpha</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Description>Yandex Disk Api Client</Description>
+    <RepositoryUrl>https://github.com/umary7/YandexDisk.ApiClient</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
