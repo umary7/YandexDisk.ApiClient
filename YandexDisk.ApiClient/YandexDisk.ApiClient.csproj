@@ -1,27 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-        <LangVersion>default</LangVersion>
-        <Authors>umary</Authors>
-        <PackageId>YandexDisk.ApiClient</PackageId>
-        <Version>1.0.1</Version>
-    </PropertyGroup>
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Authors>umary</Authors>
+    <PackageId>YandexDisk.ApiClient</PackageId>
+    <Version>1.0.2</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Description>Yandex Disk Api Client</Description>
+    <RepositoryUrl>https://github.com/umary7/YandexDisk.ApiClient</RepositoryUrl>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="3.1.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="CSharpFunctionalExtensions" Version="2.40.3"/>
-        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="../README.md" Pack="true" PackagePath="\"/>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="../LICENSE.txt" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

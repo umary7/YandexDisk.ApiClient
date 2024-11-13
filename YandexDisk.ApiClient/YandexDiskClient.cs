@@ -13,9 +13,9 @@ public sealed class YandexDiskClient : IYandexDiskClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<YandexDiskClient> _logger;
 
-    public YandexDiskClient(HttpClient httpClient, ILogger<YandexDiskClient> logger)
+    public YandexDiskClient(HttpClient httpClient, ILogger<YandexDiskClient>? logger = null)
     {
-        _logger = logger;
+        _logger = logger ?? NullLogger<YandexDiskClient>.Instance;
         _httpClient = httpClient;
     }
 
@@ -57,17 +57,21 @@ public sealed class YandexDiskClient : IYandexDiskClient
         }
     }
 
-    public async Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, int limit = 50,
-        int offset = 0, CancellationToken ct = default)
+    public async Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, string? fields = null,
+        int limit = 50, int offset = 0, string? sort = null, CancellationToken ct = default)
     {
         try
         {
-            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                new Uri("resources", UriKind.Relative)
-                    .AddParameters(
-                        ("path", path),
-                        ("limit", limit.ToString()),
-                        ("offset", offset.ToString()))), ct).ConfigureAwait(false);
+            var uri = new Uri("resources", UriKind.Relative)
+                .AddParameters(
+                    ("path", path),
+                    ("limit", limit.ToString()),
+                    ("offset", offset.ToString()));
+
+            if (fields != null) uri.AddParameters(("fields", fields));
+            if (sort != null) uri.AddParameters(("sort", sort));
+
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), ct).ConfigureAwait(false);
 
             return await response.JsonParseResponseAsync<GetResourcesResponse>(ct).ConfigureAwait(false);
         }
@@ -108,7 +112,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 Message = ex.Message
             });
         }
-    } 
+    }
 
     public async Task<Result<CreateFolderResponse, YndxDiskError>> CreateFolder(string path)
     {
@@ -146,7 +150,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while getting download link: {Error}", response.StatusCode);
+            _logger.LogError("Error while getting download link: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -183,7 +187,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while copying resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while copying resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -220,7 +224,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return await response.JsonParseResponseAsync<YndxResponse>(ct).ConfigureAwait(false);
             }
 
-            _logger.LogError("Error while moving resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while moving resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -252,7 +256,7 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 return Result.Success<YndxResponse, YndxDiskError>(new YndxResponse());
             }
 
-            _logger.LogError("Error while deleting resource: {Error}", response.StatusCode);
+            _logger.LogError("Error while deleting resource: {ResponseCode}", response.StatusCode);
             return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
             {
                 Error = response.StatusCode.ToString(),
@@ -421,13 +425,13 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 response.RequestMessage?.RequestUri, (int)response.StatusCode, response.ReasonPhrase);
 
             if (!_logger.IsEnabled(LogLevel.Trace)) return response;
-            
+
             if (requestMessage.Content != null)
             {
                 var requestContent = await requestMessage.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 _logger.LogTrace("Request: {Request}", requestContent);
             }
-                
+
             var responseContent = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             _logger.LogTrace("{Response}", responseContent);
 

@@ -16,12 +16,14 @@ public interface IYandexDiskClient : IDisposable
     ///     Get meta information about the resources in the specified folder
     /// </summary>
     /// <param name="path">Resource path</param>
+    /// <param name="fields">Fields to include in the response. If not specified, all fields are returned</param>
     /// <param name="limit">Number of nested resources to return</param>
     /// <param name="offset">Number of resources to skip</param>
+    /// <param name="sort">Field to sort by</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns><see cref="GetResourcesResponse"/> with meta information about the resources</returns>
-    Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, int limit = 50,
-        int offset = 0, CancellationToken ct = default);
+    Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, string? fields = null, int limit = 50,
+        int offset = 0, string? sort = null, CancellationToken ct = default);
 
     /// <summary>
     ///     Get file list ordered by name
@@ -30,10 +32,10 @@ public interface IYandexDiskClient : IDisposable
     /// <param name="offset">Number of files to skip</param>
     /// <param name="sort">Field to sort by</param>
     /// <param name="mediaType">Media type to filter by</param>
-    /// <param name="fields">Fields to include in the response</param>
+    /// <param name="fields">Fields to include in the response. If not specified, all fields are returned</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns><see cref="GetFilesResponse"/> with meta information about the files</returns>
-    Task<Result<GetFilesResponse, YndxDiskError>> GetFiles(int limit, int offset, string? sort = null,
+    Task<Result<GetFilesResponse, YndxDiskError>> GetFiles(int limit = 50, int offset = 0, string? sort = null,
         string? mediaType = null, string? fields = null, CancellationToken ct = default);
 
     /// <summary>

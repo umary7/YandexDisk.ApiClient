@@ -21,7 +21,7 @@ public static class HttpResponseMessageExtensions
             try
             {
                 var result = await httpResponseMessage.Content.ParseJsonAsync<T>(ct);
-                
+
                 if (result == null) return Result.Success<T, YndxDiskError>(default);
 
                 return Result.Success<T, YndxDiskError>(result);
@@ -50,6 +50,7 @@ public static class HttpResponseMessageExtensions
                 });
             }
 
+            errorResult.Status = (int)httpResponseMessage.StatusCode;
             return Result.Failure<T, YndxDiskError>(errorResult);
         }
         catch (JsonException)
