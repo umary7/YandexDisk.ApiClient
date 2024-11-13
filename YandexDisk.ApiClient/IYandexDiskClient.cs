@@ -97,6 +97,15 @@ public interface IYandexDiskClient : IDisposable
         bool overwrite = true, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Upload file to the specified path from direct URL
+    /// </summary>
+    /// <param name="destinationPath">Destination path</param>
+    /// <param name="url">Direct URL to the file</param>
+    /// <param name="disableRedirects">Disable redirects for the provided URL</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<Result<YndxResponse, YndxDiskError>> UploadFileFromUrl(string destinationPath, string url, bool disableRedirects = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Upload file to the specified path
     /// </summary>
     /// <param name="destinationPath">Destination path</param>
@@ -106,6 +115,14 @@ public interface IYandexDiskClient : IDisposable
     /// <returns><see cref="YndxResponse"/> with operation status</returns>
     Task<Result<YndxResponse, YndxDiskError>> UploadFile(string destinationPath,
         StreamContent streamContent, bool overwrite = true, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Download file content
+    /// </summary>
+    /// <param name="path">File path</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Stream with file content</returns>
+    Task<Stream?> GetFileContent(string path, CancellationToken ct = default);
 
     /// <summary>
     ///     Get information about the asynchronous operation

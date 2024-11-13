@@ -318,6 +318,41 @@ public sealed class YandexDiskClient : IYandexDiskClient
         }
     }
 
+    public async Task<Result<YndxResponse, YndxDiskError>> UploadFileFromUrl(string destinationPath, string url,
+        bool disableRedirects = false, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Post,
+                new Uri("resources/upload", UriKind.Relative)
+                    .AddParameters(
+                        ("url", url),
+                        ("path", destinationPath),
+                        ("disable_redirects", disableRedirects.ToString()))), cancellationToken).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.JsonParseResponseAsync<YndxResponse>(ct: cancellationToken).ConfigureAwait(false);
+            }
+            
+            _logger.LogError("Error while uploading file from URL: {ResponseCode}", response.StatusCode);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = response.StatusCode.ToString(),
+                Message = response.StatusCode.ToString()
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error while uploading file from URL: {Error}", e.Message);
+            return Result.Failure<YndxResponse, YndxDiskError>(new YndxDiskError
+            {
+                Error = e.Message,
+                Message = e.Message
+            });
+        }
+    }
+
     public async Task<Result<YndxResponse, YndxDiskError>> UploadFile(string destinationPath,
         StreamContent streamContent, bool overwrite = true, CancellationToken cancellationToken = default)
     {
@@ -359,6 +394,31 @@ public sealed class YandexDiskClient : IYandexDiskClient
                 Error = ex.Message,
                 Message = ex.Message
             });
+        }
+    }
+
+    public async Task<Stream?> GetFileContent(string path, CancellationToken ct = default)
+    {
+        try
+        {
+            var resource = await GetDownloadLink(path, ct).ConfigureAwait(false);
+
+            if (resource.IsFailure) return null;
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, resource.Value.Href), ct)
+                .ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+            }
+
+            _logger.LogError("Error while downloading resource: {ResponseCode}", response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while downloading resource: {Error}", ex.Message);
+            return null;
         }
     }
 
