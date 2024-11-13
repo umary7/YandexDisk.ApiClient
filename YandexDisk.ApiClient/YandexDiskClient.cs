@@ -57,17 +57,21 @@ public sealed class YandexDiskClient : IYandexDiskClient
         }
     }
 
-    public async Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, int limit = 50,
-        int offset = 0, CancellationToken ct = default)
+    public async Task<Result<GetResourcesResponse, YndxDiskError>> GetResources(string path, string? fields = null,
+        int limit = 50, int offset = 0, string? sort = null, CancellationToken ct = default)
     {
         try
         {
-            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                new Uri("resources", UriKind.Relative)
-                    .AddParameters(
-                        ("path", path),
-                        ("limit", limit.ToString()),
-                        ("offset", offset.ToString()))), ct).ConfigureAwait(false);
+            var uri = new Uri("resources", UriKind.Relative)
+                .AddParameters(
+                    ("path", path),
+                    ("limit", limit.ToString()),
+                    ("offset", offset.ToString()));
+
+            if (fields != null) uri.AddParameters(("fields", fields));
+            if (sort != null) uri.AddParameters(("sort", sort));
+
+            var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), ct).ConfigureAwait(false);
 
             return await response.JsonParseResponseAsync<GetResourcesResponse>(ct).ConfigureAwait(false);
         }
